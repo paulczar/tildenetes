@@ -1,0 +1,7 @@
+************************************************************
+
+Welcome to Tildenetes.  Don't be an asshole.
+
+files in public_html will be served to the internets.
+
+************************************************************

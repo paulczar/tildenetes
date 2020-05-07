@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "tilde-user.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "tilde-user.name" . }}
+    helm.sh/chart: {{ include "tilde-user.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.httpPort }}
+      targetPort: http
+      protocol: TCP
+      name: http
+    - port: {{ .Values.service.sshPort }}
+      targetPort: ssh
+      protocol: TCP
+      name: ssh
+  selector:
+    app.kubernetes.io/name: {{ include "tilde-user.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}

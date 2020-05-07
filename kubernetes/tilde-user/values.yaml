@@ -1,0 +1,35 @@
+# Default values for tilde-user.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+httpImage:
+  repository: nginx
+  tag: stable
+  pullPolicy: IfNotPresent
+
+sshImage:
+  repository: tilde/ssh
+  tag: latest
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: NodePort
+  httpPort: 80
+  sshPort: 22
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

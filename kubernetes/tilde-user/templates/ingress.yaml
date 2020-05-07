@@ -1,0 +1,20 @@
+{{- if ingress.enabled }}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ include "tilde-user.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "tilde-user.name" . }}
+    helm.sh/chart: {{ include "tilde-user.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  rules:
+  - host: tilde.paulcz.net
+    http:
+      paths:
+      - path: /~{{ .Values.username }}
+        backend:
+          serviceName: {{ include "tilde-user.fullname" . }}
+          servicePort: {{ .Values.service.httpPort }}
+{{- end }}

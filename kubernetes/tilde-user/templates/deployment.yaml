@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "tilde-user.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "tilde-user.name" . }}
+    helm.sh/chart: {{ include "tilde-user.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "tilde-user.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "tilde-user.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      securityContext:
+        fsGroup: 101
+      containers:
+        - name: {{ .Chart.Name }}-ssh
+          image: "{{ .Values.sshImage.repository }}:{{ .Values.sshImage.tag }}"
+          imagePullPolicy: {{ .Values.sshImage.pullPolicy }}
+          env:
+            - name: TILDE_USER
+              value: {{ .Values.username }}
+          ports:
+            - name: ssh
+              containerPort: 22
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /home/user/public_html
+              name: public-html
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+        - name: {{ .Chart.Name }}-http
+          image: "{{ .Values.httpImage.repository }}:{{ .Values.httpImage.tag }}"
+          imagePullPolicy: {{ .Values.httpImage.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /usr/share/nginx/html
+              name: public-html
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      volumes:
+        - name: public-html
+          emptyDir: {}
